@@ -1,0 +1,142 @@
+cls
+clear all
+
+set fredkey 31a0f64cc1305b80770ef935fc4992cf
+
+import fred SFTPINDM114SFRBSF SFXRSA SFCAGRIDX CAUR CUURA422SA0 UMCSENT SMU06409003133400001SA LAUMT064194000000004 A679RC1Q027SBEA GDPC1 CARGSP CADATAWWWNGSP, clear
+
+*San Francisco Tech Pulse (SFTPINDM114SFRBSF)
+*House price Index: SFXRSA 
+*Unemployment rate: CAUR
+*Consumer Price Index for All Urban Consumers:CUURA422SA0
+*Economic Conditions Index for San Francisco-Oakland-Hayward, CA (MSA) (SFCAGRIDX)
+*University of Michigan: Consumer Sentiment (UMCSENT)
+*All Employees: Durable Goods: Computer and Electronic Product Manufacturing in Sacramento--Roseville--Arden-Arcade, CA (MSA) (SMU06409003133400001SA)
+*Unemployed Persons in San Jose-Sunnyvale-Santa Clara, CA (MSA) (LAUMT064194000000004)
+*Real Gross Private Domestic Investment in information processing equipment and software (A679RC1Q027SBEA)
+*Real Gross Domestic Product (GDPC1)
+*Gross Domestic Product by Industry: Private Industries: Information: Data Processing, Internet Publishing, and Other Information Services for California (CADATAWWWNGSP)
+*Real Total Gross Domestic Product for California (CARGSP)
+
+# Data Cleaning 
+keep if SFTPINDM114SFRBSF != .
+keep if SFXRSA !=.
+keep if SFCAGRIDX !=.
+keep if CUURA422SA0!=.
+
+
+label var SFTPINDM114SFRBSF "CA Tech Pulse" 
+label var CAUR "Unemployment rate"
+label var CUURA422SA0 "Consumer Price Index"
+label var SFCAGRIDX "Economic Conditions Index"
+label var UMCSENT "UM Consumer Sentiment"
+label var SFXRSA "House Price Index"
+label var SMU06409003133400001SA "Employee no-Computer/Ele Product"
+label var LAUMT064194000000004 "Unemployment number"
+label var A679RC1Q027SBEA "Investment in Billions"
+
+ren SFTPINDM114SFRBSF TechPulse
+ren CAUR UnempRate
+ren SMU06409003133400001SA COMPInd
+ren CUURA422SA0 CPI
+ren SFCAGRIDX EcoCond
+ren UMCSENT UMCS
+ren SFXRSA HPI
+ren LAUMT064194000000004 UnempNo
+ren A679RC1Q027SBEA Invest
+
+# TechPulse UnempRate COMPInd CPI EcoCond UMCS HPI UnempNo Invest
+gen dqq= qofd(daten)
+sort dqq
+collapse TechPulse UnempRate COMPInd CPI EcoCond UMCS HPI UnempNo Invest, by(dqq)
+
+format dqq %tq
+tsset dqq
+
+save project.dta, replace
+
+gen change_TechPulse=(D1.TechPulse/L1.TechPulse)*100
+gen change_UnempRate=(D1.UnempRate/L1.UnempRate)*100
+gen change_COMPInd=(D1.COMPInd/L1.COMPInd)*100
+gen change_CPI=(D1.CPI/L1.CPI)*100
+gen change_EcoCond=(D1.EcoCond/L1.EcoCond)*100
+gen change_UMCS=(D1.UMCS/L1.UMCS)*100
+gen change_UnempNo=(D1.UnempNo/L1.UnempNo)*100
+gen change_HPI=(D1.HPI/L1.HPI)*100
+gen Invest_2=Invest/10
+
+# Dot com burst happened on Oct, 2002= 2002 Q4
+di tq(1996q1)
+di tq(2002q4)
+di tq(2008q3)
+di tq(2020q1)
+
+
+# Description of data
+tabstat TechPulse UnempRate COMPInd CPI EcoCond UMCS HPI UnempNo Invest, stats(n min max mean median sd) 
+
+# Individual graphs
+line TechPulse dqq, title("Tech Pulse Index")xlabel(121(12)241) xtitle("Years-Quarters")ytitle("Tech Pulse") note("Source:https://research.stlouisfed.org") xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) yline(100 62.48 67.5, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))
+
+line Invest dqq,xlabel(121(12)240) xtitle("Years")ytitle("Gross Domestic Investment") title("Gross Domestic Investment in Billions($)") note("Source:https://fred.stlouisfed.org") xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))
+
+line change_HPI dqq, title("Change in Home Price Index")xlabel(121(12)241) xtitle("Year-Quarter")ytitle("Home Price Index") note("Source:https://research.stlouisfed.org")xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) yline(0, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))
+
+line UnempRate dqq, title("Unemployment Rate")xlabel(121(12)241) xtitle("Year-Quarter")ytitle("Unemployment Rate ") note("Source:https://research.stlouisfed.org")xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) yline(7, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))
+
+line EcoCond dqq, title("CHANGE IN ECONOMIC CONDITION")xlabel(121(12)241) xtitle("Year-Quarter")ytitle("Change in Economic Condition ")xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) yline(2.94, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))
+
+line UMCS dqq, title("CONSUMER SENTIMENT INDEX")xlabel(121(12)241) xtitle("Year-Quarter")ytitle("Consumer sentiment Index") note("1966 December =100")xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) yline(87.38, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))
+
+# Tech Pulse Index
+line change_TechPulse dqq, title("Tech Pulse Index")xlabel(121(12)241) xtitle("Years")ytitle("Tech Pulse") note("Source:https://research.stlouisfed.org")xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) yline(0, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))  xline(239 240, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray))
+
+
+# Tech Industry and Private investments
+tssmooth ma ma_change_TechPulse= change_TechPulse, window(4,1,1)
+tssmooth ma ma_Invest_2=Invest_2, window(4,1,1)
+line ma_Invest_2 dqq || line TechPulse dqq, xlabel(121(12)240) xtitle("Years-Quarters") ylabel() ytitle("Tech Pulse change/Private Investments in Software") legend(label (1 "CA Tech Pulse")  label(2 "Investments in Billion dollars(multipl factor 10)") col(2))title("Investment in Tech Industry") xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) yline(100, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray))
+
+# Association between TechPulse, Unemployment number and Unemployment Rate
+tssmooth ma ma_change_UnempRate= change_UnempRate, window(4,1,1)
+tssmooth ma ma_change_UnempNo= change_UnempNo, window(4,1,1)
+
+line ma_change_TechPulse dqq|| line ma_change_UnempRate dqq || line ma_change_UnempNo dqq, xlabel(121(12)240) xtitle("Years-Quarters") ylabel(-10(2)20) ytitle("Tech Pulse change/UnEmp Rate Change") legend(label (1 "CA Tech Pulse")  label(2 "US Unemploy rate") label(3 "Unemploy Rate CA") col(3)) title("Unemeployment Rate and Tech Pulse change") xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) yline(100, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray))
+
+scatter ma_change_TechPulse ma_change_UnempRate ma_change_UnempNo dqq, xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(192 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) xtitle("Year") ytitle("Log CA TechPulse / Log Unemployment rate")legend(label (1 "CA Tech Pulse")  label(2 "Unemployment rate") label(3 "Unemploy Rate CA") col(3))
+
+regress change_UnempRate change_TechPulse
+regress UnempRate TechPulse
+
+pwcorr TechPulse UnempRate change_TechPulse change_UnempRate change_UnempNo, sig star(5)
+
+# Association between change TechPulse and Economic Conditions
+tssmooth ma ma_EcoCond= EcoCond, window(4,1,1)
+
+line ma_change_TechPulse dqq|| line ma_EcoCond dqq, xlabel(121(12)240) xtitle("Year-Quarters") ylabel() title("Economic condition- Change in Tech Pulse Index") ytitle("Tech Pulse change/UnEmp Rate Change") legend(label (1 "CA Tech Pulse")  label(2 "Economic Conditions Index") col(3)) xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(p2area) lwidth(thick) lpattern(dot) lcolor(gray)) yline(0)
+
+scatter ma_change_TechPulse ma_EcoCond dqq, xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(192 202, lstyle(p2area) lwidth(thick)  lpattern(dot) lcolor(gray)) xtitle("Year-Quarters") ytitle("Log CA TechPulse / Economic condition change")legend(label (1 "Log CA Tech Pulse")  label(2 "Economic Conditions change") col(3))
+
+regress EcoCond change_TechPulse 
+pwcorr EcoCond change_TechPulse , sig star(3)
+
+# Relation between Economic condition, Housing price Index and TechPulse Index
+tssmooth ma ma_EcoCond4= EcoCond, window(4,1,1)
+tssmooth ma ma_change_HPI10= change_HPI, window(4,1,1)
+tssmooth ma ma_change_TechPulse3= change_TechPulse, window(4,1,1)
+
+line ma_EcoCond4 dqq || line ma_change_HPI10 dqq || line ma_change_TechPulse3 dqq,xlabel(121(12)240) xtitle("Years") ylabel() ytitle("Tech Pulse change/HPI Change/ Change in Economy") legend(label (1 "Economic Conditions change")  label(2 "Change HPI") label(3 "CA Tech Pulse") col(3)) xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(major_grid) lwidth(thick) lpattern(dot) lcolor(gray)) title("Home Price Index Variation")
+
+regress ma_EcoCond4 ma_change_HPI10 ma_change_TechPulse3
+pwcorr ma_EcoCond4 ma_change_HPI10 ma_change_TechPulse3, sig star(3)
+
+regress EcoCond change_HPI change_TechPulse
+pwcorr EcoCond change_HPI change_TechPulse, sig star(3)
+
+# Association between Consumer confidence, TechPulse Index 
+tssmooth ma ma_change_UMCS8= change_UMCS, window(5,1,1)
+
+line ma_change_UMCS8 dqq ||line ma_change_TechPulse dqq,xlabel(121(12)240) xtitle("Years") ylabel() ytitle("Tech Pulse change/change in Consumer Sentiment") legend(label (1 "Consum. Sentiment change")  label(2 "CA Tech Pulse") col(3)) xline(164 173, lstyle(p1area) lwidth(thick) lpattern(dot) lcolor(gray)) xline(190 202, lstyle(major_grid) lwidth(thick) lpattern(dot) lcolor(gray)) title("Consumer sentiment") yline(0)
+
+regress change_UMCS change_TechPulse
+pwcorr change_UMCS change_TechPulse, sig star(1)
