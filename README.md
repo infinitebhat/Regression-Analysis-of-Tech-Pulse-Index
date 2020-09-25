@@ -1,7 +1,5 @@
 # ANALYSIS OF EFFECTS OF CHANGE IN TECH PULSE INDEX IN ECONOMIC CONDITIONS OF SILICON VALLEY
 This is the final course project for Economic Data Analysis using STATA
-
-# ANALYSIS OF EFFECTS OF CHANGE IN TECH PULSE INDEX IN ECONOMIC CONDITIONS OF SILICON VALLEY
  
 Course: Economic Data Analysis using STATA (ECO5435)
 Instructor: Dr. Hector H. Sandoval
