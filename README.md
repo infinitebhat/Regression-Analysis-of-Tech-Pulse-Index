@@ -1,4 +1,4 @@
-# ANALYSIS OF EFFECTS OF CHANGE IN TECH PULSE INDEX IN ECONOMIC CONDITIONS OF SILICON VALLEY
+# Regression Analysis of Tech Pulse Index.
 This is the final course project for Economic Data Analysis using STATA
  
 Course: Economic Data Analysis using STATA (ECO5435)
