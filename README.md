@@ -1,5 +1,5 @@
 # Regression Analysis of Tech Pulse Index.
-This is the final course project for Economic Data Analysis using STATA
+Course project for Economic Data Analysis using STATA.
  
 Course: Economic Data Analysis using STATA (ECO5435)
 Instructor: Dr. Hector H. Sandoval
